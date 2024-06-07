@@ -19,6 +19,9 @@ gem "puma", ">= 5.0"
 gem "redis"
 gem "sidekiq"
 gem "searchkick"
+gem "elasticsearch"
+gem 'dotenv-rails', groups: [:development, :test]
+gem 'redlock'
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 

@@ -16,29 +16,20 @@ class ApplicationsController < ApplicationController
   # POST /applications
   def create
     token = SecureRandom.urlsafe_base64(nil, false)
-    @application = Application.new(name: application_params[:name], token:token, chat_count:0) 
-
-    if @application.save
-      $redis.set("#{token}_chat_count", 1)
-      $redis.set("#{token}_chat_number", 1)   
-      render json: @application,:except=> [:id] , status: :created, location: @application 
-    else
-      render json: @application.errors, status: :unprocessable_entity
-    end
+    CreateApplicationJob.perform_async(params[:name], token)
+    render json: {"token":token, name: params[:name]}, status: :created
   end
 
   # PATCH/PUT /applications/1
   def update
-    if @application.update(application_params)
-      render json: @application, :except=> [:id]
-    else
-      render json: @application.errors, status: :unprocessable_entity
-    end
+    UpdateApplicationJob.perform_async(params[:name], params[:token])
+    render json: {"token":params[:token], name: params[:name]}
   end
 
   # DELETE /applications/1
   def destroy
     # should we set to zero or delete?
+    # needs locking
     $redis.del("#{@application.token}_chat_count")
     $redis.del("#{@application.token}_chat_number") 
     @application.destroy!

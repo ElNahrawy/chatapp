@@ -16,36 +16,33 @@ class MessagesController < ApplicationController
 
   # POST /messages
   def create
-    message_count = $redis.get("#{params[:application_token]}_#{params[:chat_chat_number]}_message_count")
-    message_number = $redis.get("#{params[:application_token]}_#{params[:chat_chat_number]}_message_number")
-    puts "hamada"
-    puts "#{params[:application_token]}_#{params[:chat_number]}_message_number"
-    puts params
-    @message = @chat.messages.new(message_body: params[:message_body],  message_number: message_number)
-
-    if @message.save
-      $redis.incr("#{params[:application_token]}_#{params[:chat_chat_number]}_message_count")
-      $redis.incr("#{params[:application_token]}_#{params[:chat_chat_number]}_message_number")
-      @chat.update(message_count: message_count)
-      render json: @message,:except=> [:id, :chat_id], status: :created, location: application_chat_message_url(@application, @chat, @message)
-    else
-      render json: @message.errors, status: :unprocessable_entity
+    message_count = 0
+    message_number = 0
+    $lock_manager.lock("#{params[:application_token]}_#{params[:chat_chat_number]}_message_creation_lock", 2000) do |locked|
+      if locked
+        message_count = $redis.incr("#{params[:application_token]}_#{params[:chat_chat_number]}_message_count")
+        message_number = $redis.incr("#{params[:application_token]}_#{params[:chat_chat_number]}_message_number")
+      end
     end
+    CreateMessageJob.perform_async(params[:application_token], params[:chat_chat_number], message_number, message_count, params[:message_body])
+    render json: {"message_number": message_number, "message_body": params[:message_body]}, status: :created
   end
 
   # PATCH/PUT /messages/1
   def update
-    if @message.update(message_body: params[:message_body])
-      render json: @message,:except=> [:id, :chat_id]
-    else
-      render json: @message.errors, status: :unprocessable_entity
-    end
+    UpdateMessageJob.perform_async( params[:application_token], 
+                                    params[:chat_chat_number], 
+                                    params[:message_number],
+                                    params[:message_body])
+    render json: {"message_number": params[:message_number], "message_body": params[:message_body]}
   end
 
   # DELETE /messages/1
   def destroy
     message_count = $redis.decr("#{params[:application_token]}_#{params[:chat_chat_number]}_message_count")
-    @chat.update(message_count: message_count)
+    @chat.with_lock do
+      @chat.update(message_count: message_count)
+    end
     @message.destroy!
   end
 
