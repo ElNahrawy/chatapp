@@ -22,6 +22,7 @@ gem "searchkick"
 gem "elasticsearch"
 gem 'dotenv-rails', groups: [:development, :test]
 gem 'redlock'
+gem 'sidekiq-scheduler'
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 

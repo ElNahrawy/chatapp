@@ -1,0 +1,6 @@
+:scheduler:
+  :schedule:
+    counter_update:
+      cron: "*/10 * * * * *" # run every 10 seconds, low value debugging and development purposes
+      class: "CounterUpdateScheduler"
+      queue: "default"
