@@ -13,7 +13,7 @@
     * 3.2 [Services](#Services)
 
 ## Demo:
-![Demo](images/Demo.mp4)
+https://github.com/ElNahrawy/chatapp/assets/87456471/e5a44c90-17cc-40a5-8706-fcdb97b2811c
 ## Usage:
 ### Requirements
 * Docker (version used in development: 24.0.7)
