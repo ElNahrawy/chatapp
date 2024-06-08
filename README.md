@@ -2,7 +2,7 @@
 * This project includes a chatting API built using Ruby on Rails.
 * The app offers the ability to create different chat applications each containing different chats with each chat containing multiple messages, while keeping track of the number of chats per application and the number of messages per chat.
 
-## Table of contents:
+## Table of contents
 1. [Demo](#Demo)
 2. [Usage](#Usage)
     * 2.1 [Requirements](#Requirements)
@@ -12,7 +12,7 @@
     * 3.1 [Schema](#Schema)
     * 3.2 [Services](#Services)
 
-## Demo:
+## Demo
 https://github.com/ElNahrawy/chatapp/assets/87456471/e5a44c90-17cc-40a5-8706-fcdb97b2811c
 ## Usage:
 ### Requirements
@@ -27,7 +27,7 @@ docker compose up
 Once all services are up and running the app will be accessible through:
 http://0.0.0.0:3000
 
-#### **NB**: 
+#### **NB**
 * If you're running this app on wsl, you may need to modify some config for the Elasticsearch service to work correctly.
 Kindly refer to this [section](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_windows_with_docker_desktop_wsl_2_backend) of needed modifications to wsl.
 * If you have Mysql installed locally on your machine, a Mysql service may start automatically with the machine startup, preventing the app of binding to the default Mysql port.
