@@ -40,8 +40,6 @@ class ApplicationsController < ApplicationController
 
   # DELETE /applications/1
   def destroy
-    # should we set to zero or delete?
-    # needs locking
     $redis.del("#{@application.token}_chat_count")
     $redis.del("#{@application.token}_chat_number") 
     @application.destroy!

@@ -43,7 +43,6 @@ class ChatsController < ApplicationController
 
   # DELETE /chats/1
   def destroy
-    # needs locking
     $redis.del("#{params[:application_token]}_#{params[:chat_number]}_message_count")
     $redis.del("#{params[:application_token]}_#{params[:chat_number]}_message_number")
     
