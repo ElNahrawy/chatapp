@@ -15,16 +15,24 @@ class ApplicationsController < ApplicationController
 
   # POST /applications
   def create
-    token = SecureRandom.urlsafe_base64(nil, false)
-    CreateApplicationJob.perform_async(params[:name], token)
-    render json: {"token":token, name: params[:name]}, status: :created
+    if not params[:name].blank?
+      token = SecureRandom.urlsafe_base64(nil, false)
+      CreateApplicationJob.perform_async(params[:name], token)
+      render json: {"token":token, name: params[:name]}, status: :created
+    else
+      render json: {error: "Empty name field "}, status: :unprocessable_entity
+    end
   end
 
   # PATCH/PUT /applications/1
   def update
     if @application
-      UpdateApplicationJob.perform_async(params[:name], params[:token])
-      render json: {"token":params[:token], name: params[:name]}
+      if not params[:name].blank?
+        UpdateApplicationJob.perform_async(params[:name], params[:token])
+        render json: {"token":params[:token], name: params[:name]}
+      else
+        render json: {error: "Empty name field "}, status: :unprocessable_entity
+      end
     else
       render json: {error: "Incorrect token"}, status: :unprocessable_entity
     end

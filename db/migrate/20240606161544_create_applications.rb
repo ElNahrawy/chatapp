@@ -3,7 +3,7 @@ class CreateApplications < ActiveRecord::Migration[7.1]
     create_table :applications do |t|
       t.string :token, null: false
       t.integer :chat_count
-      t.string :name
+      t.string :name, null:false
 
       t.timestamps
     end

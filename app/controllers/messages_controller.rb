@@ -25,8 +25,12 @@ class MessagesController < ApplicationController
       end
     end
     if @chat
-      CreateMessageJob.perform_async(params[:application_token], params[:chat_chat_number], message_number, message_count, params[:message_body])
-      render json: {"message_number": message_number, "message_body": params[:message_body]}, status: :created
+      if not params[:message_body].blank?
+        CreateMessageJob.perform_async(params[:application_token], params[:chat_chat_number], message_number, message_count, params[:message_body])
+        render json: {"message_number": message_number, "message_body": params[:message_body]}, status: :created
+      else
+        render json: {error: "Empty message_body field "}, status: :unprocessable_entity
+      end
     else
       render json: {error: "Incorrect token or chat number"}, status: :unprocessable_entity
     end 
@@ -35,11 +39,15 @@ class MessagesController < ApplicationController
   # PATCH/PUT /messages/1
   def update
     if @chat
-      UpdateMessageJob.perform_async( params[:application_token], 
-                                      params[:chat_chat_number], 
-                                      params[:message_number],
-                                      params[:message_body])
-      render json: {"message_number": params[:message_number], "message_body": params[:message_body]}
+      if not params[:message_body].blank?
+        UpdateMessageJob.perform_async( params[:application_token], 
+                                        params[:chat_chat_number], 
+                                        params[:message_number],
+                                        params[:message_body])
+        render json: {"message_number": params[:message_number], "message_body": params[:message_body]}
+      else
+        render json: {error: "Empty message_body field "}, status: :unprocessable_entity
+      end
     else
       render json: {error: "Incorrect token or chat number"}, status: :unprocessable_entity
     end
