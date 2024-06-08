@@ -18,14 +18,18 @@ class ChatsController < ApplicationController
   def create
     chat_count = 0
     chat_number = 0
-    $lock_manager.lock("#{params[:application_token]}_chat_creation_lock", 2000) do |locked|
-      if locked
-        chat_count = $redis.incr("#{params[:application_token]}_chat_count")
-        chat_number = $redis.incr("#{params[:application_token]}_chat_number")
+    if @application
+      $lock_manager.lock("#{params[:application_token]}_chat_creation_lock", 2000) do |locked|
+        if locked
+          chat_count = $redis.incr("#{params[:application_token]}_chat_count")
+          chat_number = $redis.incr("#{params[:application_token]}_chat_number")
+        end
       end
+      CreateChatJob.perform_async(params[:application_token], chat_number, chat_count)
+      render json: {"chat_number": chat_number}, status: :created
+    else
+      render json: {error: "Incorrect token"}, status: :unprocessable_entity
     end
-    CreateChatJob.perform_async(params[:application_token], chat_number, chat_count)
-    render json: {"chat_number": chat_number}, status: :created
   end
 
   # PATCH/PUT /chats/1

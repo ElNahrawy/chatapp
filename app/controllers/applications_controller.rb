@@ -22,8 +22,12 @@ class ApplicationsController < ApplicationController
 
   # PATCH/PUT /applications/1
   def update
-    UpdateApplicationJob.perform_async(params[:name], params[:token])
-    render json: {"token":params[:token], name: params[:name]}
+    if @application
+      UpdateApplicationJob.perform_async(params[:name], params[:token])
+      render json: {"token":params[:token], name: params[:name]}
+    else
+      render json: {error: "Incorrect token"}, status: :unprocessable_entity
+    end
   end
 
   # DELETE /applications/1

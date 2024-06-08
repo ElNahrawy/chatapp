@@ -6,9 +6,6 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-if Rails.env.development? || Rails.env.test?
-  Dotenv::Rails.load
-end
 
 module InstabugChatapp
   class Application < Rails::Application

@@ -24,17 +24,26 @@ class MessagesController < ApplicationController
         message_number = $redis.incr("#{params[:application_token]}_#{params[:chat_chat_number]}_message_number")
       end
     end
-    CreateMessageJob.perform_async(params[:application_token], params[:chat_chat_number], message_number, message_count, params[:message_body])
-    render json: {"message_number": message_number, "message_body": params[:message_body]}, status: :created
+    if @chat
+      CreateMessageJob.perform_async(params[:application_token], params[:chat_chat_number], message_number, message_count, params[:message_body])
+      render json: {"message_number": message_number, "message_body": params[:message_body]}, status: :created
+    else
+      render json: {error: "Incorrect token or chat number"}, status: :unprocessable_entity
+    end 
   end
 
   # PATCH/PUT /messages/1
   def update
-    UpdateMessageJob.perform_async( params[:application_token], 
-                                    params[:chat_chat_number], 
-                                    params[:message_number],
-                                    params[:message_body])
-    render json: {"message_number": params[:message_number], "message_body": params[:message_body]}
+    if @chat
+      UpdateMessageJob.perform_async( params[:application_token], 
+                                      params[:chat_chat_number], 
+                                      params[:message_number],
+                                      params[:message_body])
+      render json: {"message_number": params[:message_number], "message_body": params[:message_body]}
+    else
+      render json: {error: "Incorrect token or chat number"}, status: :unprocessable_entity
+    end
+
   end
 
   # DELETE /messages/1
@@ -47,9 +56,13 @@ class MessagesController < ApplicationController
   end
 
   def search
-    unless params[:query].blank?
-      @results = Message.search(params[:query], fields:[:message_body])
-      render json: @result, status: :ok
+    if @chat
+      unless params[:query].blank?
+        @results = Message.search(params[:query], fields:[:message_body], where:{chat_id:params[:chat_chat_number]})
+        render json: @results.results,:except=> [:id, :chat_id], status: :ok
+      end
+    else
+      render json: {error: "Incorrect token or chat number"}, status: :unprocessable_entity
     end
   end
 
@@ -69,6 +82,6 @@ class MessagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def message_params
-      params.require(:message).permit(:message_body, :message_number) #should i remove message_number?
+      params.require(:message).permit(:message_body, :message_number, :query) #should i remove message_number?
     end
 end
