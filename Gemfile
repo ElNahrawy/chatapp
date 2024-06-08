@@ -16,12 +16,12 @@ gem "puma", ">= 5.0"
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
-gem "redis"
-gem "sidekiq"
-gem "searchkick"
-gem "elasticsearch"
-gem 'redlock'
-gem 'sidekiq-scheduler'
+gem "redis", "~> 5.2.0"
+gem "sidekiq", "~> 7.2.4"
+gem "searchkick", "~> 5.3.1"
+gem "elasticsearch", "~> 8.14.0"
+gem 'redlock', "~> 2.0.6"
+gem 'sidekiq-scheduler', "~> 5.0.3"
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 
